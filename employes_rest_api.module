@@ -1,0 +1,155 @@
+<?php
+/**
+ * @file
+ * Importación de empleados desde API externa a estructura Drupal
+ *
+ * @author Alberto Chaves (mackpipe@gmail.com, https://github.com/mackpipe).
+ */
+
+/**
+ * Implements hook_menu(). 
+ */
+function employes_rest_api_menu() {     
+   
+  $items['admin/config/system/employes_rest_api'] = array(
+    'title' => 'Employes Rest Api',
+    'description' => 'Configuration Employes Rest Api',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('employes_rest_api_admin_form_basic'),
+    'access arguments' => array('access administration pages'),
+    'file' => 'employes_rest_api_admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => 0,
+  );
+
+  $items['admin/employes_rest_api-import'] = array(
+    'title' => 'Import Employes Rest Api',
+    'description' => 'Import Employes Rest Api',
+    'page callback' => array('employes_rest_api_import'),
+    'access arguments' => array('access administration pages'),
+    'file' => 'employes_rest_api_include.inc',
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => 0,
+  );		 	  	  
+
+  return $items;
+}
+
+/**
+* Implementation of hook_views_api().
+*/
+function employes_rest_api_views_api() {
+  return array(
+    'api' => 3.0,
+    'path' => drupal_get_path('module', 'employes_rest_api')
+  );
+}
+
+/**
+ * Implementation of hook_views_default_views().
+ */
+function employes_rest_api_views_default_views() {
+ 
+  $view = new view();
+  $view->name = 'list_employes';
+  $view->description = '';
+  $view->tag = 'default';
+  $view->base_table = 'node';
+  $view->human_name = 'List Employes';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; // Edit this to true to make a default view disabled initially 
+
+  // Display: Master
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['title'] = 'listado de pruebas2';
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['exposed_form']['options']['reset_button_label'] = 'Restablecer';
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '50';
+  $handler->display->display_options['pager']['options']['tags']['first'] = '« primero';
+  $handler->display->display_options['pager']['options']['tags']['previous'] = '‹ anterior';
+  $handler->display->display_options['pager']['options']['tags']['next'] = 'siguiente ›';
+  $handler->display->display_options['pager']['options']['tags']['last'] = 'última »';
+  $handler->display->display_options['style_plugin'] = 'table';
+  // Campo: Contenido: Título 
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  // Filter criterion: Contenido: Published status
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'node';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = 1;
+  $handler->display->display_options['filters']['status']['group'] = 1;
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+  //Filter criterion: Contenido: Tipo
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'empleados' => 'empleados',
+  );
+
+  // Display: Employes
+  $handler = $view->new_display('page', 'Employes', 'page');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'List employes';
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  // Campo: Contenido: Nombre del empleado
+  $handler->display->display_options['fields']['field_employes_name2']['id'] = 'field_employes_name2';
+  $handler->display->display_options['fields']['field_employes_name2']['table'] = 'field_data_field_employes_name2';
+  $handler->display->display_options['fields']['field_employes_name2']['field'] = 'field_employes_name2';
+  $handler->display->display_options['fields']['field_employes_name2']['exclude'] = TRUE;
+  // Campo: Contenido: Nid
+  $handler->display->display_options['fields']['nid']['id'] = 'nid';
+  $handler->display->display_options['fields']['nid']['table'] = 'node';
+  $handler->display->display_options['fields']['nid']['field'] = 'nid';
+  $handler->display->display_options['fields']['nid']['label'] = 'Employe name';
+  $handler->display->display_options['fields']['nid']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['nid']['alter']['text'] = '[field_employes_name2]';
+  $handler->display->display_options['fields']['nid']['link_to_node'] = TRUE;
+  $handler->display->display_options['defaults']['sorts'] = FALSE;
+  //Sort criterion: Contenido: Nombre del empleado (field_employes_name2)
+  $handler->display->display_options['sorts']['field_employes_name2_value']['id'] = 'field_employes_name2_value';
+  $handler->display->display_options['sorts']['field_employes_name2_value']['table'] = 'field_data_field_employes_name2';
+  $handler->display->display_options['sorts']['field_employes_name2_value']['field'] = 'field_employes_name2_value';
+  $handler->display->display_options['path'] = 'list-employes';
+  $handler->display->display_options['menu']['type'] = 'normal';
+  $handler->display->display_options['menu']['title'] = 'List Employes';
+  $handler->display->display_options['menu']['weight'] = '0';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $translatables['list_employes'] = array(
+    t('Master'),
+    t('listado de pruebas2'),
+    t('more'),
+    t('Apply'),
+    t('Restablecer'),
+    t('Sort by'),
+    t('Asc'),
+    t('Desc'),
+    t('Items per page'),
+    t('- All -'),
+    t('Offset'),
+    t('« primero'),
+    t('‹ anterior'),
+    t('siguiente ›'),
+    t('última »'),
+    t('Título'),
+    t('Employes'),
+    t('List employes'),
+    t('Nombre del empleado'),
+    t('Employe name'),
+    t('[field_employes_name2]'),
+  );
+
+  $views[$view->name] = $view;
+  return $views;
+}
