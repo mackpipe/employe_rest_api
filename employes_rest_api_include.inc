@@ -251,3 +251,113 @@ $Data = array(
 	echo $html;
 
 }
+
+function serviceapi_submit($form, &$form_state) {
+	//dpm($form_state);
+    $options = array();
+    $serv = 1;
+    $formid = 1005; //$form_state['complete form']['details']['nid']['#value']:
+    $form_admin=36;
+    $titleform=$form['#node']->title;
+    $desc='listado leads';
+
+    $nom= array('type'=>$form['#node']->webform['components'][1]['type'],
+    			'fieldId'=>$form['#node']->webform['components'][1]['cid'],
+    			'name'=>$form['#node']->webform['components'][1]['form_key'],
+    			'value'=>$form_state['input']['submitted']['nombre'],
+    			'restrict'=>"NameCharactersAndNumbers");
+    //dpm($nom);
+
+    $em=array('type'=>$form['#node']->webform['components'][7]['type'],
+    			'fieldId'=>$form['#node']->webform['components'][7]['cid'],
+    			'name'=>$form['#node']->webform['components'][7]['form_key'],
+    			'value'=>$form_state['input']['submitted']['email'],
+    			'restrict'=>"NameCharactersAndNumbers");
+    $tip=array('type'=>$form['#node']->webform['components'][6]['type'],
+    			'fieldId'=>$form['#node']->webform['components'][6]['cid'],
+    			'name'=>$form['#node']->webform['components'][6]['form_key'],
+    			'value'=>$form_state['input']['submitted']['tipodoc'],
+    			'restrict'=>"NameCharactersAndNumbers");
+
+   $idwebform=0;
+	  if ($form_state['input']['submitted']['tipodoc']=='cc' ){
+	    $idwebform=3;
+	  }elseif($form_state['input']['submitted']['tipodoc']=='ce'){
+	    $idwebform=4;
+	  }elseif($form_state['input']['submitted']['tipodoc']=='ti'){
+	    $idwebform=5;
+	  }
+
+	$numd=array('type'=>$form['#node']->webform['components'][$idwebform]['type'],
+          'fieldId'=>$form['#node']->webform['components'][$idwebform]['cid'],
+          'name'=>'numdoc',
+          'value'=>$form_state['values']['submitted'][$idwebform],
+          'restrict'=>"NameCharactersAndNumbers");
+
+
+    
+    $dateform=date('Y-m-d H:i:s',$form['#node']->created);
+    $datereg=date('Y-m-d',$form_state['build_info']['args'][0]->created);
+
+    $content_reg = array('id_form'=>$formid,
+    						'admins_id_admin'=>$form_admin,
+    						'title_form'=>$titleform,
+    						'description_form'=>$desc,
+    						'fields_form'=> array($nom, $em, $tip, $numd),
+	    					'date_form'=>$dateform
+	    						);
+	$content_reg = json_encode($content_reg);   
+
+	//dpm($content_reg);
+    // Array keys are matching the key that the remote site accepts. URL encoding will be taken care later.
+    $options = array(
+    	'service'=>$serv,
+    	'forms_id_form'=>$formid,
+    	'forms_admins_id_admin'=>$form_admin,
+    	'content_reg'=>	$content_reg,
+	    'date_reg'=>$datereg					
+	    	);
+     //drupal_set_message   
+    //dpm(json_encode($options));
+
+    $url= 'http://hpl.qailumno.com/SIAF/api/php/proxys/regsproxy.php/';
+
+    $parameters = drupal_http_build_query($options);
+
+
+    $parameters = $parameters;
+
+    $response= drupal_http_request($url, array(
+	'method' => 'POST',
+	'data' => $parameters,
+	'max_redirects' => 0,
+    'headers' => array('Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8')
+    )
+	);
+
+
+
+  $respuesta=json_decode($response->data,true); 
+
+  $message='Se han registrado tus datos correctamente bajo el id "'.$respuesta['insertedId'].'"';
+
+  drupal_set_message(t($message), 'status');
+
+
+	
+
+    //dpm($parameters);
+
+    //$options['data'] = http_build_query($options['data']);
+    //$options['method'] => 'POST';
+    //$url = 'https://[url path to external site]'; 
+
+    // Put your additional headers here. Cookie can be set as well. 
+    //$headers = array('Content-Type' => 'application/x-www-form-urlencoded');
+
+    //$options['headers'] => $headers;
+
+    // Submits data to the remote server from the drupal server. User will remain in the Drupal form submission chain.
+    //$response = drupal_http_request($url, $options);
+
+}
