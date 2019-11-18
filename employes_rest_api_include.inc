@@ -215,3 +215,39 @@ function __employes_rest_api_get_term_from_name($term_name, $vocabulary_name) {
 
   return false;
 }
+
+function _employes_rest_api_curl(){
+
+$Data = array(
+	     'service' => '1',
+	     'forms_id_form' => '1005',
+	     'forms_admins_id_admin' => '36',
+	     'content_reg' => array("id_form"=>"1005",
+	     						"admins_id_admin"=>"36",
+	     						"title_form"=>"Prueba (1005)",
+	     						"description_form"=>"listado leads",
+	     						"fields_form" =>array(array("type"=>"TEXT","fieldId"=>"fieldType1_combo","name"=>"nombre","value"=>"Wilson A","restrict"=>"NameCharactersAndNumbers"),
+	     											  array("type"=>"TEXT","fieldId"=>"fieldType2_combo","name"=>"email","value"=>"wilson@gmail.com","restrict"=>"NameCharactersAndNumbers"),
+	     											  array("type"=>"TEXT","fieldId"=>"fieldType3_combo","name"=>"tipodoc","value"=>"CC","restrict"=>"NameCharactersAndNumbers"),
+	     											  array("type"=>"TEXT","fieldId"=>"fieldType4_combo","name"=>"numdoc","value"=>"12345678","restrict"=>"NameCharactersAndNumbers")
+	     											  ),
+	     						"date_form"=>"2019-06-25 00:00:00"
+	     						),
+	     'date_reg' => '2019-06-26'
+	);
+
+	$url = 'aqui va la url';
+	$ch = curl_init();								
+	# -- -----------------------------------------------------------------------------
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt ($ch, CURLOPT_URL, $url );
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $Data);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+	$html = curl_exec ( $ch );	
+	$error = curl_error($ch); echo $error; 
+	curl_close($ch);
+	echo $html;
+
+}
