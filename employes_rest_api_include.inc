@@ -359,5 +359,7 @@ function serviceapi_submit($form, &$form_state) {
 
     // Submits data to the remote server from the drupal server. User will remain in the Drupal form submission chain.
     //$response = drupal_http_request($url, $options);
-
+   
+  // RESTED - PAra probar rest desde chrome
+	
 }
