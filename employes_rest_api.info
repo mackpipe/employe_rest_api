@@ -1,5 +1,5 @@
 name = Employes Rest Api
-description = Create a custom node type and load records from an APi rest as nodes to the node type
+description = Create a custom node type and load records from an APi rest as nodes to the node type.
 core = 7.x
 package = Custom
 dependencies[] = views
